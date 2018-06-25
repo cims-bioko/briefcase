@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.javarosa.core.model.Constants.DATATYPE_NULL;
+import static org.javarosa.core.model.DataType.CHOICE_LIST;
 import static org.javarosa.core.model.DataType.GEOPOINT;
 import static org.javarosa.core.model.DataType.NULL;
 
@@ -32,6 +33,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.javarosa.core.model.DataType;
+import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.QuestionDef;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.instance.TreeElement;
 
 /**
@@ -39,13 +43,16 @@ import org.javarosa.core.model.instance.TreeElement;
  * It can hold the root level model or any of its fields.
  */
 class Model {
+
+  private final FormDef form;
   private final TreeElement model;
 
   /**
    * Main constructor for {@link Model} that takes a {@link TreeElement} as its root.
    */
-  Model(TreeElement model) {
+  Model(TreeElement model, FormDef form) {
     this.model = model;
+    this.form = form;
   }
 
   /**
@@ -153,11 +160,27 @@ class Model {
           fqn(shift) + "-Altitude",
           fqn(shift) + "-Accuracy"
       );
+    if (getDataType() == CHOICE_LIST) {
+      String baseName = fqn(shift);
+      List<SelectChoice> choices = getChoices();
+      List<String> names = new ArrayList<>(choices.size() + 1);
+      names.add(baseName);
+      choices.stream().map(choice -> baseName + "/" + choice.getValue()).forEachOrdered(names::add);
+      return names;
+    }
     if (getDataType() == NULL && model.isRepeatable())
       return singletonList("SET-OF-" + fqn(shift));
     if (getDataType() == NULL && !model.isRepeatable() && size() > 0)
       return children().stream().flatMap(e -> e.getNames(shift).stream()).collect(toList());
     return singletonList(fqn(shift));
+  }
+
+  List<SelectChoice> getChoices() {
+    return getQuestion().getChoices();
+  }
+
+  private QuestionDef getQuestion() {
+    return FormDef.findQuestionByRef(model.getRef(), form);
   }
 
   /**
@@ -196,7 +219,7 @@ class Model {
    * @return the {@link Model} parent of this {@link Model} instance
    */
   Model getParent() {
-    return new Model((TreeElement) model.getParent());
+    return new Model((TreeElement) model.getParent(), form);
   }
 
   /**
@@ -241,7 +264,7 @@ class Model {
     Set<String> fqns = new HashSet<>();
     List<Model> children = new ArrayList<>(model.getNumChildren());
     for (int i = 0, max = model.getNumChildren(); i < max; i++) {
-      Model child = new Model(model.getChildAt(i));
+      Model child = new Model(model.getChildAt(i), form);
       String fqn = child.fqn();
       if (!fqns.contains(fqn)) {
         children.add(child);

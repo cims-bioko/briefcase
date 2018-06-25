@@ -74,7 +74,7 @@ public class FormDefinition {
           formFile,
           formDef.getName(),
           isEncrypted,
-          new Model(formDef.getMainInstance().getRoot())
+          new Model(formDef.getMainInstance().getRoot(), formDef)
       );
     } catch (IOException e) {
       throw new ParsingException(e);
@@ -91,7 +91,7 @@ public class FormDefinition {
         fd.getFormDefinitionFile().toPath(),
         fd.getFormName(),
         fd.isFileEncryptedForm(),
-        new Model(fd.getSubmissionElement())
+        new Model(fd.getSubmissionElement(), fd.getFormDef())
     );
   }
 

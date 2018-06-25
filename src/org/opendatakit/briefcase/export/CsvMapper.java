@@ -27,6 +27,8 @@ import static org.javarosa.core.model.DataType.DATE_TIME;
 import static org.javarosa.core.model.DataType.GEOPOINT;
 import static org.javarosa.core.model.DataType.NULL;
 import static org.javarosa.core.model.DataType.TIME;
+import static org.javarosa.core.model.DataType.CHOICE_LIST;
+import static org.opendatakit.briefcase.export.FieldMapper.choiceMapper;
 import static org.opendatakit.briefcase.export.FieldMapper.simpleMapper;
 import static org.opendatakit.briefcase.reused.UncheckedFiles.copy;
 import static org.opendatakit.briefcase.reused.UncheckedFiles.createDirectories;
@@ -69,6 +71,9 @@ class CsvMapper {
 
     // Geopoint fields have a size of 4 columns and have to be decoded
     mappers.put(GEOPOINT, simpleMapper(CsvMapper::geopoint, 4));
+
+    // Multi-selects optionally broken out for analytic ease
+    mappers.put(CHOICE_LIST, choiceMapper());
 
     // Binary fields require knowledge of the export configuration and working dir
     mappers.put(BINARY, (__, workingDir, field, element, exportMedia, exportMediaPath) -> element

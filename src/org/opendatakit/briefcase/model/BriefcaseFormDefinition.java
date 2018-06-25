@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.security.PrivateKey;
 import org.apache.commons.io.FileUtils;
 import org.bushe.swing.event.EventBus;
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.TreeElement;
 import org.opendatakit.aggregate.exception.ODKIncompleteSubmissionData;
 import org.opendatakit.aggregate.parser.BaseFormParserForJavaRosa.DifferenceResult;
@@ -43,6 +44,10 @@ public class BriefcaseFormDefinition implements IFormDefinition, Serializable {
   private boolean needsMediaUpdate = false;
   private JavaRosaParserWrapper formDefn;
   private PrivateKey privateKey = null;
+
+  public FormDef getFormDef() {
+    return formDefn.getFormDef();
+  }
 
   private static final String readFile(File formDefinitionFile) throws BadFormDefinition {
     StringBuilder xmlBuilder = new StringBuilder();

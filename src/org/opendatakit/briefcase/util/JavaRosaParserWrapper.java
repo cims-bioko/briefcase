@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.TreeElement;
 import org.opendatakit.aggregate.exception.ODKIncompleteSubmissionData;
 import org.opendatakit.aggregate.form.XFormParameters;
@@ -24,6 +25,10 @@ public class JavaRosaParserWrapper extends BaseFormParserForJavaRosa {
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException("should not happen");
     }
+  }
+
+  public FormDef getFormDef() {
+    return rootJavaRosaFormDef;
   }
 
   public final static String newMD5HashUri(byte[] asBytes) {

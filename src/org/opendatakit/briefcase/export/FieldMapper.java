@@ -15,11 +15,19 @@
  */
 package org.opendatakit.briefcase.export;
 
+import org.javarosa.core.model.SelectChoice;
+import org.opendatakit.briefcase.reused.Pair;
+
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
-import org.opendatakit.briefcase.reused.Pair;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * This Functional Interface represents the operation of transformation of some
@@ -60,4 +68,23 @@ interface FieldMapper {
         .orElse(CsvMapper.empty(model.fqn(), outputSize));
   }
 
+  static FieldMapper choiceMapper() {
+    return (localId, workingDir, model, element, exportMedia, exportMediaPath) -> {
+      String baseName = model.fqn();
+      Set<String> selections = element
+              .map(e -> Arrays.stream(e.getValue().split("\\s+")))
+              .orElse(Stream.of(""))
+              .collect(Collectors.toSet());
+      return Stream.concat(
+              Stream.of(
+                      element
+                              .map(e -> Pair.of(baseName, e.getValue()))
+                              .orElse(Pair.of(baseName, ""))),
+              model.getChoices()
+                      .stream()
+                      .map(SelectChoice::getValue)
+                      .map(choiceValue -> Pair.of(baseName + "/" + choiceValue, selections.contains(choiceValue) ? "1" : "0")))
+              .collect(toList());
+    };
+  }
 }
