@@ -23,12 +23,7 @@ import static org.javarosa.core.model.DataType.CHOICE_LIST;
 import static org.javarosa.core.model.DataType.GEOPOINT;
 import static org.javarosa.core.model.DataType.NULL;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -176,7 +171,7 @@ class Model {
   }
 
   List<SelectChoice> getChoices() {
-    return getQuestion().getChoices();
+    return Optional.ofNullable(getQuestion().getChoices()).orElse(Collections.emptyList());
   }
 
   private QuestionDef getQuestion() {
